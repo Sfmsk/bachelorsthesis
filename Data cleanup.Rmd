@@ -1,0 +1,261 @@
+---
+title: "Data cleanup"
+author: "Sofia F. M. Schmidt-Kallesøe"
+date: "9/10/2018"
+output: html_document
+---
+
+Josh's cleanup
+```{r}
+
+library(foreign) #read.spss function
+
+# read SPSS data file
+dat_in = read.spss("/Users/Fred/Documents/Aarhus/5. Semester/Bachelor/Gender in politics data/DK2017_Lea.sav")
+
+#######################################################
+####------Parsing SPSS file into responses to each question
+
+#----------Question 1 ---------------------
+# judgements of candidate in vignette
+# check with Lea to verify titles
+cond <- dat_in$basic_design
+competence <-as.numeric(substr(dat_in$Q1_1,1,1))
+ambition <-as.numeric(substr(dat_in$Q1_2,1,1))
+project <-as.numeric(substr(dat_in$Q1_3,1,1))
+obedient <-as.numeric(substr(dat_in$Q1_4,1,1))
+respectful<-as.numeric(substr(dat_in$Q1_5,1,1))
+self_erase<-as.numeric(substr(dat_in$Q1_6,1,1))
+independent<-as.numeric(substr(dat_in$Q1_7,1,1))
+self_reliant<-as.numeric(substr(dat_in$Q1_8,1,1))
+decisive<-as.numeric(substr(dat_in$Q1_9,1,1))
+warm<-as.numeric(substr(dat_in$Q1_10,1,1))
+friendly<-as.numeric(substr(dat_in$Q1_11,1,1))
+cooperative<-as.numeric(substr(dat_in$Q1_12,1,1))
+sharp<-as.numeric(substr(dat_in$Q1_13,1,1))
+intuitive<-as.numeric(substr(dat_in$Q1_14,1,1))
+insightful<-as.numeric(substr(dat_in$Q1_15,1,1))
+confident<-as.numeric(substr(dat_in$Q1_16,1,1))
+dominant<-as.numeric(substr(dat_in$Q1_17,1,1))
+forceful<-as.numeric(substr(dat_in$Q1_18,1,1))
+analytic<-as.numeric(substr(dat_in$Q1_19,1,1))
+logical<-as.numeric(substr(dat_in$Q1_20,1,1))
+objective<-as.numeric(substr(dat_in$Q1_21,1,1))
+friendly2<-as.numeric(substr(dat_in$Q1_22,1,1))
+caring<-as.numeric(substr(dat_in$Q1_23,1,1))
+considerate<-as.numeric(substr(dat_in$Q1_24,1,1))
+
+#------Question 2 and 3 ---------------------------
+# representation
+foreign_me <- as.numeric(substr(dat_in$Q2_1,1,1))
+education_me <- as.numeric(substr(dat_in$Q2_2,1,1))
+health_me <- as.numeric(substr(dat_in$Q2_3,1,1))
+law_me <- as.numeric(substr(dat_in$Q2_4,1,1))
+
+foreign_dk <- as.numeric(substr(dat_in$Q3_1,1,1))
+education_dk <- as.numeric(substr(dat_in$Q3_2,1,1))
+health_dk <- as.numeric(substr(dat_in$Q3_3,1,1))
+law_dk <- as.numeric(substr(dat_in$Q3_4,1,1))
+
+#------Question 4 ---------------------------
+# judgements of sociability and trustworthyness
+sociability <- rowSums(cbind(as.numeric(substr(dat_in$Q4a_socialibility,1,1)),
+                             as.numeric(substr(dat_in$Q4b_socialibility,1,1)),
+                             as.numeric(substr(dat_in$Q4c_socialibility,1,1)),
+                             as.numeric(substr(dat_in$Q4d_socialibility,1,1))))
+
+trustworthy <- rowSums(cbind(as.numeric(substr(dat_in$Q4e_moral_trustworthy,1,1)),
+                             as.numeric(substr(dat_in$Q4f_moral_trustworthy,1,1)),
+                             as.numeric(substr(dat_in$Q4g_moral_trustworthy,1,1)),
+                             as.numeric(substr(dat_in$Q4h_moral_trustworthy,1,1))))
+
+#------Question 5, 6, and 7 ---------------------------
+# voting, suitability, and ability to explicitly recall target gender
+vote <- as.numeric(substr(dat_in$Q5,1,1))
+gender_suitability <- as.numeric(substr(dat_in$Q6,1,1))
+gender_recall <- dat_in$Q7
+
+gender_correct <- rep(1,length(gender_recall))
+gender_correct[cond=="Standard female candidate"&gender_recall == "Mand"]=0
+gender_correct[cond=="Warm female candidate"&gender_recall == "Mand"]=0
+gender_correct[cond=="Competent female candidate"&gender_recall == "Mand"]=0
+gender_correct[cond=="Standard male candidate"&gender_recall == "Kvinde"]=0
+gender_correct[gender_recall == "Ved ikke"]=0
+
+#------ participant demographics and experiment/condition information
+gender <- dat_in$gender
+
+experiment <- rep(1,length(competence))
+experiment[cond=="Warm female candidate"|cond=="Competent female candidate"] <- 2
+
+sub <- dat_in$RecordNo
+
+
+```
+
+Creating one big dataframe with all the data
+```{r}
+
+participant = list(1:1006) #list of numbers 1-1006
+
+dataframe = data.frame(participant, cond, 
+                       
+                       competence, ambition, project, 
+                       independent, self_reliant, decisive, 
+                       analytic, logical, objective,
+                       confident, dominant, forceful,
+                       obedient, respectful, self_erase,  
+                       warm, friendly, cooperative, 
+                       sharp, intuitive, insightful,  
+                       friendly2, caring, considerate, 
+                       
+                       foreign_me, education_me, health_me, law_me,
+                       foreign_dk, education_dk, health_dk, law_dk,
+                       
+                       sociability, trustworthy,
+                       
+                       vote, gender_suitability, gender_recall, gender_correct, gender)
+
+dataframe = plyr::rename(dataframe, c("X1.1006" = "participant")) #renaming participant column
+
+```
+
+
+Removing data from people who didn't recall gender correctly 
+```{r}
+
+dataframe = dataframe[!(dataframe$gender_correct == "0"),]
+
+```
+
+
+Adding main traits in the dataframe 
+```{r}
+
+dataframe$achievement_orientation = (dataframe$competence + dataframe$ambition + dataframe$project)/3
+dataframe$deference = (dataframe$obedient + dataframe$respectful + dataframe$self_erase)/3
+dataframe$autonomy = (dataframe$independent + dataframe$self_reliant + dataframe$decisive)/3
+dataframe$affiliative = (dataframe$warm + dataframe$friendly + dataframe$cooperative)/3
+dataframe$emotionally_sensitive = (dataframe$sharp + dataframe$intuitive + dataframe$insightful)/3
+dataframe$take_charge = (dataframe$confident + dataframe$dominant + dataframe$forceful)/3
+dataframe$rational = (dataframe$analytic + dataframe$logical + dataframe$objective)/3
+dataframe$concern_for_others = (dataframe$friendly2 + dataframe$caring + dataframe$considerate)/3
+
+```
+
+Average of main traits separated by condition  
+```{r}
+
+by(dataframe$achievement_orientation, dataframe$cond, FUN = mean)
+by(dataframe$deference, dataframe$cond, FUN = mean)
+by(dataframe$autonomy, dataframe$cond, FUN = mean)
+by(dataframe$affiliative, dataframe$cond, FUN = mean)
+by(dataframe$emotionally_sensitive, dataframe$cond, FUN = mean)
+by(dataframe$take_charge, dataframe$cond, FUN = mean)
+by(dataframe$rational, dataframe$cond, FUN = mean)
+by(dataframe$concern_for_others, dataframe$cond, FUN = mean)
+
+```
+
+
+Checking reliability with Alpha package for each main trait for all data
+```{r}
+
+library(psych)
+
+achievement_orientation = subset(dataframe, select = c(competence, ambition, project))
+alpha(achievement_orientation)
+
+deference = subset(dataframe, select = c(obedient, respectful, self_erase))
+alpha(deference)
+
+autonomy = subset(dataframe, select = c(independent, self_reliant, decisive))
+alpha(autonomy)
+
+affiliative = subset(dataframe, select = c(warm, friendly, cooperative))
+alpha(affiliative)
+
+emotionally_sensitive = subset(dataframe, select = c(sharp, intuitive, insightful))
+alpha(emotionally_sensitive)
+
+take_charge = subset(dataframe, select = c(confident, dominant, forceful))
+alpha(take_charge)
+
+rational = subset(dataframe, select = c(analytic, logical, objective))
+alpha(rational)
+
+concern_for_others = subset(dataframe, select = c(friendly2, caring, considerate))
+alpha(concern_for_others)
+
+```
+
+
+
+```{r}
+
+library(knitr)
+library(xtable)
+
+main_trait_correlations = psych::corr.test(dataframe[42:49])
+main_trait_correlations_df = as.data.frame(main_trait_correlations$r) #extracting correlations from the corr.test
+
+kable(main_trait_correlations_df, digits = 4, align = "c", format = "pandoc", caption = "Main Trait Correlations")
+
+```
+
+Stereotypicality scores - two stereotype scores per participant (one male and one female)
+```{r}
+
+dataframe$male_stereotype = ((dataframe$competence + dataframe$ambition + dataframe$project + dataframe$independent + dataframe$self_reliant + dataframe$decisive + dataframe$confident + dataframe$dominant + dataframe$forceful + dataframe$analytic + dataframe$logical + dataframe$objective)/12)
+
+dataframe$female_stereotype = ((dataframe$obedient + dataframe$respectful+ dataframe$self_erase + dataframe$warm + dataframe$friendly + dataframe$cooperative + dataframe$sharp + dataframe$intuitive + dataframe$insightful + dataframe$friendly + dataframe$caring + dataframe$considerate)/12)
+
+```
+
+Creating new variable in order to tell experiment 1 and experiment 2 apart 
+Experiment 1 including standard male candidate and standard female candidate is called 0
+Experiment 2 including competent female candidate and warm female candidate is called 1 
+```{r}
+
+dataframe = within(dataframe, {
+    experiment = ifelse(cond == "Standard male candidate" | cond == "Standard female candidate", 1, 2)
+ })
+
+```
+
+
+```{r}
+
+votemodel1 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(votemodel1)
+
+votemodel2 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(votemodel2)
+
+```
+
+
+
+```{r}
+
+
+
+```
+
+```{r}
+
+
+
+```
+
+Dividing the two experiments into two dataframes
+```{r}
+
+m_f = dataframe[!(dataframe$cond == "Competent female candidate"),]
+m_f = m_f[!(m_f$cond == "Warm female candidate"),]
+
+
+c_w = dataframe[!(dataframe$cond == "Standard male candidate"),]
+c_w = c_w[!(c_w$cond == "Standard female candidate"),]
+
+```
