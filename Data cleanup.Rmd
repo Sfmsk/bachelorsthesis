@@ -190,7 +190,7 @@ alpha(concern_for_others)
 ```
 
 
-
+Main trait correlations 
 ```{r}
 
 library(knitr)
@@ -203,6 +203,7 @@ kable(main_trait_correlations_df, digits = 4, align = "c", format = "pandoc", ca
 
 ```
 
+
 Stereotypicality scores - two stereotype scores per participant (one male and one female)
 ```{r}
 
@@ -211,6 +212,7 @@ dataframe$male_stereotype = ((dataframe$competence + dataframe$ambition + datafr
 dataframe$female_stereotype = ((dataframe$obedient + dataframe$respectful+ dataframe$self_erase + dataframe$warm + dataframe$friendly + dataframe$cooperative + dataframe$sharp + dataframe$intuitive + dataframe$insightful + dataframe$friendly + dataframe$caring + dataframe$considerate)/12)
 
 ```
+
 
 Creating new variable in order to tell experiment 1 and experiment 2 apart 
 Experiment 1 including standard male candidate and standard female candidate is called 0
@@ -224,6 +226,7 @@ dataframe = within(dataframe, {
 ```
 
 
+Vote as outcome
 ```{r}
 
 votemodel1 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
@@ -234,10 +237,152 @@ summary(votemodel2)
 
 ```
 
+Representation (me) within foreign policy as outcome
+```{r}
+
+me_foreign1 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_foreign1)
+
+me_foreign2 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_foreign2)
+
+```
+
+Representation (me) within education policy as outcome
+```{r}
+
+me_education1 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_education1)
+
+me_education2 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_education2)
+
+```
+
+Representation (me) within health policy as outcome
+```{r}
+
+me_health1 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_health1)
+
+me_health2 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_health2)
+
+```
+
+Representation (me) within law policy as outcome
+```{r}
+
+me_law1 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_law1)
+
+me_law2 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_law2)
+
+```
+
+
+Representation (dk) within foreign policy as outcome
+```{r}
+
+dk_foreign1 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_foreign1)
+
+dk_foreign2 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_foreign2)
+
+```
+
+Representation (dk) within education policy as outcome
+```{r}
+
+dk_education1 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_education1)
+
+dk_education2 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_education2)
+
+```
+
+Representation (dk) within health policy as outcome
+```{r}
+
+dk_health1 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_health1)
+
+dk_health2 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_health2)
+
+```
+
+Representation (dk) within law policy as outcome
+```{r}
+
+dk_law1 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_law1)
+
+dk_law2 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_law2)
+
+```
+
+Sociability as outcome
+```{r}
+
+socmodel1 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(socmodel1)
+
+socmodel2 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(socmodel2)
+
+```
+
+Trustworthiness as outcome
+```{r}
+
+trustmodel1 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(trustmodel1)
+
+trustmodel2 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(trustmodel2)
+
+```
+
+Suitability as outcome
+```{r}
+
+suitmodel1 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(suitmodel1)
+
+suitmodel2 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(suitmodel2)
+
+```
+
+
+
+
+
 
 
 ```{r}
 
+library(ggplot2)
+
+bots = ggplot(compdata, aes(x = v1.c, y = PR)) + geom_smooth() + facet_wrap(reliability~authority)
+bots
+
+
+ggplot(dataframe, aes(female_stereotype, vote, colour = gender)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
+  facet_wrap(~cond)
+
+
+ggplot(dataframe, aes(male_stereotype, vote, colour = gender)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
+  facet_wrap(~cond)
 
 
 ```
