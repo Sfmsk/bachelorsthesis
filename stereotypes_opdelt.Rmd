@@ -1,0 +1,110 @@
+---
+title: "stereotypes_opdelt"
+author: "Sofia F. M. Schmidt-Kallesøe"
+date: "20/11/2018"
+output: html_document
+---
+
+Plots med male_stereotype og female_stereotype opdelt 
+```{r}
+
+#Experiment 1
+votemodel1m = lm(vote ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(votemodel1m)
+
+votemodel1f = lm(vote ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(votemodel1f)
+
+dk_foreign1m = lm(foreign_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_foreign1m)
+
+dk_foreign1f = lm(foreign_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_foreign1f)
+
+dk_education1m = lm(education_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_education1m)
+
+dk_education1f = lm(education_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_education1f)
+
+dk_health1m = lm(health_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_health1m)
+
+dk_health1f = lm(health_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_health1f)
+
+dk_law1m = lm(law_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_law1m)
+
+dk_law1f = lm(law_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(dk_law1f)
+
+socmodel1m = lm(sociability ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(socmodel1m)
+
+socmodel1f = lm(sociability ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(socmodel1f)
+
+trustmodel1m = lm(trustworthy ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(trustmodel1m)
+
+trustmodel1f = lm(trustworthy ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(trustmodel1f)
+
+suitmodel1m = lm(gender_suitability ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 1))
+summary(suitmodel1m)
+
+suitmodel1f = lm(gender_suitability ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 1))
+summary(suitmodel1f)
+
+
+#Experiment 2
+votemodel2m = lm(gender_suitability ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(votemodel2m)
+
+votemodel2f = lm(gender_suitability ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(votemodel2f)
+
+dk_foreign2m = lm(foreign_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_foreign2m)
+
+dk_foreign2f = lm(foreign_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_foreign2f)
+
+dk_education2m = lm(education_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_education2m)
+
+dk_education2f = lm(education_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_education2f)
+
+dk_health2m = lm(health_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_health2m)
+
+dk_health2f = lm(health_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_health2f)
+
+dk_law2m = lm(law_dk ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_law2m)
+
+dk_law2f = lm(law_dk ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(dk_law2f)
+
+socmodel2m = lm(sociability ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(socmodel2m)
+
+socmodel2f = lm(sociability ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(socmodel2f)
+
+trustmodel2m = lm(trustworthy ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(trustmodel2m)
+
+trustmodel2f = lm(trustworthy ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(trustmodel2f)
+
+suitmodel2m = lm(gender_suitability ~ cond*gender*male_stereotype, data = subset(dataframe, experiment == 2))
+summary(suitmodel2m)
+
+suitmodel2f = lm(gender_suitability ~ cond*gender*female_stereotype, data = subset(dataframe, experiment == 2))
+summary(suitmodel2f)
+
+```

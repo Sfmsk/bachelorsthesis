@@ -1,0 +1,430 @@
+---
+title: "Data analysis"
+author: "Sofia F. M. Schmidt-Kallesøe"
+date: "19/11/2018"
+output: html_document
+---
+
+
+```{r}
+
+dataframe = read.csv("cleanData.csv")
+library(stats)
+library(ggplot2)
+library(psych)
+library(knitr)
+library(xtable)
+
+```
+
+
+Average of main traits separated by condition  
+```{r}
+
+round(by(dataframe$achievement_orientation, dataframe$cond, FUN = mean), 2)
+round(by(dataframe$autonomy, dataframe$cond, FUN = mean()), 2)
+round(by(dataframe$take_charge, dataframe$cond, FUN = mean), 2)
+round(by(dataframe$rational, dataframe$cond, FUN = mean), 2)
+
+round(by(dataframe$affiliative, dataframe$cond, FUN = mean), 2)
+round(by(dataframe$deference, dataframe$cond, FUN = mean), 2)
+round(by(dataframe$emotionally_sensitive, dataframe$cond, FUN = mean), 2)
+round(by(dataframe$concern_for_others, dataframe$cond, FUN = mean), 2)
+
+by(dataframe$law_dk, dataframe$cond, summary)
+
+plot(density(dataframe$male_stereotype))
+plot(density(dataframe$female_stereotype))
+
+```
+
+Checking reliability with Alpha package for each main trait for all data
+```{r}
+
+achievement_orientation = subset(dataframe, select = c(competence, ambition, project))
+alpha(achievement_orientation)
+
+deference = subset(dataframe, select = c(obedient, respectful, self_erase))
+alpha(deference)
+
+autonomy = subset(dataframe, select = c(independent, self_reliant, decisive))
+alpha(autonomy)
+
+affiliative = subset(dataframe, select = c(warm, friendly, cooperative))
+alpha(affiliative)
+
+emotionally_sensitive = subset(dataframe, select = c(sharp, intuitive, insightful))
+alpha(emotionally_sensitive)
+
+take_charge = subset(dataframe, select = c(confident, dominant, forceful))
+alpha(take_charge)
+
+rational = subset(dataframe, select = c(analytic, logical, objective))
+alpha(rational)
+
+concern_for_others = subset(dataframe, select = c(friendly2, caring, considerate))
+alpha(concern_for_others)
+
+```
+
+
+Main trait correlations 
+```{r}
+
+main_trait_correlations = psych::corr.test(dataframe[45:52])
+main_trait_correlations_df = as.data.frame(main_trait_correlations$r) #extracting correlations from the corr.test
+
+kable(main_trait_correlations_df, digits = 2, align = "c", format = "pandoc", caption = "Main Trait Correlations")
+
+```
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Vote as outcome
+```{r}
+
+votemodel1 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(votemodel1)
+
+votemodel2 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(votemodel2)
+
+
+by(dataframe$male_stereotype, dataframe$cond, FUN = mean)
+by(dataframe$female_stereotype, dataframe$cond, FUN = mean)
+
+by(subset(dataframe, gender == "Male")$vote, subset(dataframe, gender == "Male")$cond, FUN = mean)
+by(subset(dataframe, gender == "Female")$female_stereotype, subset(dataframe, gender == "Female")$cond, FUN = mean)
+
+```
+
+Plotting significant interaction between genderMale:female_stereotype with vote as outcome in experiment 1
+```{r}
+
+ ggplot(subset(dataframe, experiment == "1"), aes(female_stereotype, vote, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  labs(x = "Female Stereotype", y = "Vote")
+
+ ggplot(subset(dataframe, experiment == "1"), aes(female_stereotype, vote, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  labs(x = "Female Stereotype", y = "Vote")
+
+```
+
+
+Plotting significant interaction between condStandardMale:genderMale:female_stereotype with vote as outcome in experiment 1
+```{r}
+
+ggplot(subset(dataframe, experiment == "1"), aes(female_stereotype, vote, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  facet_wrap(~cond) +
+  labs(x = "Female Stereotype", y = "Vote")
+  
+```
+
+
+
+Representation (me)
+-------------------------------------------------------------------------------------------------------------------------------
+Representation (me) within foreign policy as outcome
+```{r}
+
+me_foreign1 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_foreign1)
+
+me_foreign2 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_foreign2)
+
+```
+
+Representation (me) within education policy as outcome
+```{r}
+
+me_education1 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_education1)
+
+me_education2 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_education2)
+
+```
+
+Representation (me) within health policy as outcome
+```{r}
+
+me_health1 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_health1)
+
+me_health2 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_health2)
+
+```
+
+Representation (me) within law policy as outcome
+```{r}
+
+me_law1 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(me_law1)
+
+me_law2 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(me_law2)
+
+```
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+Representation (dk)
+-------------------------------------------------------------------------------------------------------------------------------
+
+Representation (dk) within foreign policy as outcome
+```{r}
+
+dk_foreign1 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_foreign1)
+
+dk_foreign2 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_foreign2)
+
+```
+
+
+Plotting significant interaction between genderMale:male_stereotype with foreign_dk as outcome in experiment 1
+```{r}
+
+ggplot(subset(dataframe, experiment == "1"), aes(male_stereotype, foreign_dk, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  labs(x = "Male Stereotype", y = "Representation of Denmark in foreign law")
+
+```
+
+Plotting significant interaction between condStandardMale:genderMale:male_stereotype with foreign_dk as outcome in experiment 1
+```{r}
+
+ggplot(subset(dataframe, experiment == "1"), aes(male_stereotype, foreign_dk, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  facet_wrap(~cond) +
+  labs(x = "Male Stereotype", y = "Representation of Denmark in foreign law")
+
+```
+
+
+
+
+Representation (dk) within education policy as outcome
+```{r}
+
+dk_education1 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_education1)
+
+dk_education2 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_education2)
+
+```
+
+
+Plotting significant interaction between condWarmFemale:female_stereotype with foreign_dk as outcome in experiment 2
+```{r}
+
+ggplot(subset(dataframe, experiment == "2"), aes(female_stereotype, education_dk, colour = cond)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3)
+
+```
+
+
+
+
+Representation (dk) within health policy as outcome
+```{r}
+
+dk_health1 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_health1)
+
+dk_health2 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_health2)
+
+```
+
+Representation (dk) within law policy as outcome
+```{r}
+
+dk_law1 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(dk_law1)
+
+dk_law2 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(dk_law2)
+
+```
+
+
+Plotting significant interaction between condWarmFemale:genderMale:female_stereotype with law_dk as outcome in experiment 2
+```{r}
+
+ggplot(subset(dataframe, experiment == "2"), aes(female_stereotype, law_dk, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  facet_wrap(~cond)
+
+```
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Sociability
+-------------------------------------------------------------------------------------------------------------------------------
+
+Sociability as outcome
+```{r}
+
+socmodel1 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(socmodel1)
+
+socmodel2 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(socmodel2)
+
+```
+-------------------------------------------------------------------------------------------------------------------------------
+
+Trustworthiness
+-------------------------------------------------------------------------------------------------------------------------------
+
+Trustworthiness as outcome
+```{r}
+
+trustmodel1 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(trustmodel1)
+
+trustmodel2 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(trustmodel2)
+
+```
+
+
+Plotting significant interaction between condWarmFemale:genderMale:female_stereotype with trustworthiness as outcome in experiment 2
+```{r}
+
+ggplot(subset(dataframe, experiment == "2"), aes(female_stereotype, trustworthy, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  facet_wrap(~cond)
+
+```
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Suitability
+-------------------------------------------------------------------------------------------------------------------------------
+
+Suitability as outcome
+```{r}
+
+suitmodel1 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
+summary(suitmodel1)
+
+suitmodel2 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
+summary(suitmodel2)
+
+```
+
+Plotting significant interaction between condWarmFemale:genderMale:female_stereotype with suitability as outcome in experiment 2
+```{r}
+
+ggplot(subset(dataframe, experiment == "2"), aes(female_stereotype, gender_suitability, colour = gender)) +
+  geom_point() +
+  geom_smooth(method ="lm", alpha = 0.3) +
+  facet_wrap(~cond)
+
+```
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+```{r}
+
+library(ggplot2)
+
+
+ggplot(dataframe, aes(female_stereotype, vote, colour = gender)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
+  facet_wrap(~cond)
+
+
+ggplot(dataframe, aes(male_stereotype, vote, colour = gender)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
+  facet_wrap(~cond)
+
+
+```
+
+PLOTS
+```{r}
+
+library(ggplot2)
+
+#Histograms of stereotypes
+plot(hist(dataframe$male_stereotype))
+plot(hist(dataframe$female_stereotype))
+
+
+
+ggplot(dataframe, aes(female_stereotype, vote)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(dataframe, aes(male_stereotype, vote)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(dataframe, aes(female_stereotype, vote, colour = gender)) +
+  stat_summary(fun.y = mean, geom = "point") + 
+  stat_summary(fun.y = mean, geom = "line", aes(group = gender)) + 
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) +
+  facet_wrap(~cond)
+#remember stereotypes 
+
+
+plot(dataframe$female_stereotype[dataframe$experiment==2 & dataframe$gender=="Kvinde" & dataframe$cond=="Warm female candidate"],
+     dataframe$suitability[dataframe$experiment==2 & dataframe$gender=="Kvinde" & dataframe$cond=="Warm female candidate"])
+
+
+ggplot(subset(dataframe, experiment == "2"), aes(female_stereotype, gender_suitability)) + 
+  facet_wrap(cond~gender) +
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  labs(x = "Female Stereotype", y = "Gender Suitability")
+
+
+
+
+
+
+
+
+```
+
+
+
+```{r}
+
+count(subset(dataframe1, experiment == "2")$gender == "Female")
+
+plot(subset(dataframe, experiment == "2")$age)
+
+
+```

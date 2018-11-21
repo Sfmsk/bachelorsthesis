@@ -85,6 +85,10 @@ gender_correct[gender_recall == "Ved ikke"]=0
 #------ participant demographics and experiment/condition information
 gender <- dat_in$gender
 
+age <- dat_in$profile_age
+
+education <- dat_in$profile_education_rc
+
 experiment <- rep(1,length(competence))
 experiment[cond=="Warm female candidate"|cond=="Competent female candidate"] <- 2
 
@@ -98,7 +102,7 @@ Creating one big dataframe with all the data
 
 participant = list(1:1006) #list of numbers 1-1006
 
-dataframe = data.frame(participant, cond, 
+dataframe1 = data.frame(participant, cond, 
                        
                        competence, ambition, project, 
                        independent, self_reliant, decisive, 
@@ -114,9 +118,18 @@ dataframe = data.frame(participant, cond,
                        
                        sociability, trustworthy,
                        
-                       vote, gender_suitability, gender_recall, gender_correct, gender)
+                       vote, gender_suitability, gender_recall, gender_correct, gender, age, education)
 
-dataframe = plyr::rename(dataframe, c("X1.1006" = "participant")) #renaming participant column
+dataframe1 = plyr::rename(dataframe1, c("X1.1006" = "participant")) #renaming participant column
+
+```
+
+
+Renaming genders from Danish to English 
+```{r}
+
+levels(dataframe1$gender)[match("Mand",levels(dataframe1$gender))] <- "Male"
+levels(dataframe1$gender)[match("Kvinde",levels(dataframe1$gender))] <- "Female"
 
 ```
 
@@ -124,7 +137,7 @@ dataframe = plyr::rename(dataframe, c("X1.1006" = "participant")) #renaming part
 Removing data from people who didn't recall gender correctly 
 ```{r}
 
-dataframe = dataframe[!(dataframe$gender_correct == "0"),]
+dataframe = dataframe1[!(dataframe1$gender_correct == "0"),]
 
 ```
 
@@ -133,78 +146,19 @@ Adding main traits in the dataframe
 ```{r}
 
 dataframe$achievement_orientation = (dataframe$competence + dataframe$ambition + dataframe$project)/3
-dataframe$deference = (dataframe$obedient + dataframe$respectful + dataframe$self_erase)/3
 dataframe$autonomy = (dataframe$independent + dataframe$self_reliant + dataframe$decisive)/3
-dataframe$affiliative = (dataframe$warm + dataframe$friendly + dataframe$cooperative)/3
-dataframe$emotionally_sensitive = (dataframe$sharp + dataframe$intuitive + dataframe$insightful)/3
 dataframe$take_charge = (dataframe$confident + dataframe$dominant + dataframe$forceful)/3
 dataframe$rational = (dataframe$analytic + dataframe$logical + dataframe$objective)/3
+dataframe$affiliative = (dataframe$warm + dataframe$friendly + dataframe$cooperative)/3
+dataframe$deference = (dataframe$obedient + dataframe$respectful + dataframe$self_erase)/3
+dataframe$emotionally_sensitive = (dataframe$sharp + dataframe$intuitive + dataframe$insightful)/3
 dataframe$concern_for_others = (dataframe$friendly2 + dataframe$caring + dataframe$considerate)/3
-
-```
-
-Average of main traits separated by condition  
-```{r}
-
-by(dataframe$achievement_orientation, dataframe$cond, FUN = mean)
-by(dataframe$deference, dataframe$cond, FUN = mean)
-by(dataframe$autonomy, dataframe$cond, FUN = mean)
-by(dataframe$affiliative, dataframe$cond, FUN = mean)
-by(dataframe$emotionally_sensitive, dataframe$cond, FUN = mean)
-by(dataframe$take_charge, dataframe$cond, FUN = mean)
-by(dataframe$rational, dataframe$cond, FUN = mean)
-by(dataframe$concern_for_others, dataframe$cond, FUN = mean)
-
-```
-
-
-Checking reliability with Alpha package for each main trait for all data
-```{r}
-
-library(psych)
-
-achievement_orientation = subset(dataframe, select = c(competence, ambition, project))
-alpha(achievement_orientation)
-
-deference = subset(dataframe, select = c(obedient, respectful, self_erase))
-alpha(deference)
-
-autonomy = subset(dataframe, select = c(independent, self_reliant, decisive))
-alpha(autonomy)
-
-affiliative = subset(dataframe, select = c(warm, friendly, cooperative))
-alpha(affiliative)
-
-emotionally_sensitive = subset(dataframe, select = c(sharp, intuitive, insightful))
-alpha(emotionally_sensitive)
-
-take_charge = subset(dataframe, select = c(confident, dominant, forceful))
-alpha(take_charge)
-
-rational = subset(dataframe, select = c(analytic, logical, objective))
-alpha(rational)
-
-concern_for_others = subset(dataframe, select = c(friendly2, caring, considerate))
-alpha(concern_for_others)
-
-```
-
-
-Main trait correlations 
-```{r}
-
-library(knitr)
-library(xtable)
-
-main_trait_correlations = psych::corr.test(dataframe[42:49])
-main_trait_correlations_df = as.data.frame(main_trait_correlations$r) #extracting correlations from the corr.test
-
-kable(main_trait_correlations_df, digits = 4, align = "c", format = "pandoc", caption = "Main Trait Correlations")
 
 ```
 
 
 Stereotypicality scores - two stereotype scores per participant (one male and one female)
+The scores consist of an average of the agentic and communal traits respectively for each participant 
 ```{r}
 
 dataframe$male_stereotype = ((dataframe$competence + dataframe$ambition + dataframe$project + dataframe$independent + dataframe$self_reliant + dataframe$decisive + dataframe$confident + dataframe$dominant + dataframe$forceful + dataframe$analytic + dataframe$logical + dataframe$objective)/12)
@@ -215,8 +169,8 @@ dataframe$female_stereotype = ((dataframe$obedient + dataframe$respectful+ dataf
 
 
 Creating new variable in order to tell experiment 1 and experiment 2 apart 
-Experiment 1 including standard male candidate and standard female candidate is called 0
-Experiment 2 including competent female candidate and warm female candidate is called 1 
+Experiment 1 including standard male candidate and standard female candidate is called 1
+Experiment 2 including competent female candidate and warm female candidate is called 2 
 ```{r}
 
 dataframe = within(dataframe, {
@@ -226,181 +180,10 @@ dataframe = within(dataframe, {
 ```
 
 
-Vote as outcome
+Saving the clean dataframe 
 ```{r}
 
-votemodel1 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(votemodel1)
-
-votemodel2 = lm(vote ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(votemodel2)
+write.csv(dataframe, file = "cleanData.csv")
 
 ```
 
-Representation (me) within foreign policy as outcome
-```{r}
-
-me_foreign1 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(me_foreign1)
-
-me_foreign2 = lm(foreign_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(me_foreign2)
-
-```
-
-Representation (me) within education policy as outcome
-```{r}
-
-me_education1 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(me_education1)
-
-me_education2 = lm(education_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(me_education2)
-
-```
-
-Representation (me) within health policy as outcome
-```{r}
-
-me_health1 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(me_health1)
-
-me_health2 = lm(health_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(me_health2)
-
-```
-
-Representation (me) within law policy as outcome
-```{r}
-
-me_law1 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(me_law1)
-
-me_law2 = lm(law_me ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(me_law2)
-
-```
-
-
-Representation (dk) within foreign policy as outcome
-```{r}
-
-dk_foreign1 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(dk_foreign1)
-
-dk_foreign2 = lm(foreign_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(dk_foreign2)
-
-```
-
-Representation (dk) within education policy as outcome
-```{r}
-
-dk_education1 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(dk_education1)
-
-dk_education2 = lm(education_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(dk_education2)
-
-```
-
-Representation (dk) within health policy as outcome
-```{r}
-
-dk_health1 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(dk_health1)
-
-dk_health2 = lm(health_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(dk_health2)
-
-```
-
-Representation (dk) within law policy as outcome
-```{r}
-
-dk_law1 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(dk_law1)
-
-dk_law2 = lm(law_dk ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(dk_law2)
-
-```
-
-Sociability as outcome
-```{r}
-
-socmodel1 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(socmodel1)
-
-socmodel2 = lm(sociability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(socmodel2)
-
-```
-
-Trustworthiness as outcome
-```{r}
-
-trustmodel1 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(trustmodel1)
-
-trustmodel2 = lm(trustworthy ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(trustmodel2)
-
-```
-
-Suitability as outcome
-```{r}
-
-suitmodel1 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 1))
-summary(suitmodel1)
-
-suitmodel2 = lm(gender_suitability ~ cond*gender*(male_stereotype + female_stereotype), data = subset(dataframe, experiment == 2))
-summary(suitmodel2)
-
-```
-
-
-
-
-
-
-
-```{r}
-
-library(ggplot2)
-
-bots = ggplot(compdata, aes(x = v1.c, y = PR)) + geom_smooth() + facet_wrap(reliability~authority)
-bots
-
-
-ggplot(dataframe, aes(female_stereotype, vote, colour = gender)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
-  facet_wrap(~cond)
-
-
-ggplot(dataframe, aes(male_stereotype, vote, colour = gender)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", aes(fill = gender), alpha = 0.2) +
-  facet_wrap(~cond)
-
-
-```
-
-```{r}
-
-
-
-```
-
-Dividing the two experiments into two dataframes
-```{r}
-
-m_f = dataframe[!(dataframe$cond == "Competent female candidate"),]
-m_f = m_f[!(m_f$cond == "Warm female candidate"),]
-
-
-c_w = dataframe[!(dataframe$cond == "Standard male candidate"),]
-c_w = c_w[!(c_w$cond == "Standard female candidate"),]
-
-```
