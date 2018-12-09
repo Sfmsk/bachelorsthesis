@@ -1,0 +1,53 @@
+---
+title: "Data_analysis_exp2"
+author: "Sofia F. M. Schmidt-Kallesøe"
+date: "23/11/2018"
+output: html_document
+---
+
+```{r}
+
+dataframe = read.csv("cleanData.csv")
+library(stats)
+library(ggplot2)
+library(psych)
+library(knitr)
+library(xtable)
+
+```
+
+
+Checking reliability with Alpha package for each main trait for all data
+```{r}
+
+achievement_orientation = subset(dataframe, select = c(competence, ambition, project))
+mean(dataframe$achievement_orientation)
+alpha(achievement_orientation)
+
+deference = subset(dataframe, select = c(obedient, respectful, self_erase))
+alpha(deference)
+
+autonomy = subset(dataframe, select = c(independent, self_reliant, decisive))
+alpha(autonomy)
+
+affiliative = subset(dataframe, select = c(warm, friendly, cooperative))
+alpha(affiliative)
+
+emotionally_sensitive = subset(dataframe, select = c(sharp, intuitive, insightful))
+alpha(emotionally_sensitive)
+
+take_charge = subset(dataframe, select = c(confident, dominant, forceful))
+alpha(take_charge)
+
+rational = subset(dataframe, select = c(analytic, logical, objective))
+alpha(rational)
+
+concern_for_others = subset(dataframe, select = c(friendly2, caring, considerate))
+alpha(concern_for_others)
+
+
+#########
+dffemale_stereotype = subset(dataframe, select = c(affiliative, deference, emotionally_sensitive, concern_for_others))
+alpha(dffemale_stereotype)
+
+```
